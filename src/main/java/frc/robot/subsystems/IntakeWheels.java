@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 
-public class IntakeWheels {
+public class IntakeWheels extends SubsystemBase{
     TalonFX motor;
 
     public IntakeWheels(int motorID) {
@@ -12,6 +12,6 @@ public class IntakeWheels {
     }
 
     public void setMotorSpeeds(double speed) {
-        //this.motor.set(TalonFXControlMode.PercentOutput, speed); FIX THISS!!!!!!!!
+        this.motor.set(speed);
     }
 }
