@@ -1,6 +1,16 @@
 package frc.robot;
 
 public class Constants {
+    public static class MotorIDs{
+        public static int IntakeAngle = 9;
+        public static int IntakeWheels = 10;
+        public static int Shooter1 = 15;
+        public static int Shooter2 = 16;
+        public static int Passthrough = 17;
+        public static int Hood = 18;
+        public static int Indexer = 19;
+        public static int Climber = 20;
+    }
     public static class HoodConstants {
         public static double kP = 0;
         public static double kI = 0;
