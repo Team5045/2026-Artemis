@@ -3,7 +3,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeWheelConstants;
-import frc.robot.Constants.IntakeWheelConstants;
 import frc.robot.subsystems.IntakeWheels;
 
 public class IntakeCommand extends Command{
