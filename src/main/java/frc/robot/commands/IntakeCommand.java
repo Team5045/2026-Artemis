@@ -2,7 +2,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.IntakeWheelConstants;
+import frc.robot.Constants.IntakeWheelConstants;
 import frc.robot.subsystems.IntakeWheels;
 
 public class IntakeCommand extends Command{
@@ -11,12 +12,13 @@ public class IntakeCommand extends Command{
     public IntakeCommand(IntakeWheels intakeWheels, CommandXboxController controller)
     {
         this.intakeWheels = intakeWheels;
+        addRequirements(intakeWheels);
     }
 
     @Override
     public void execute()
     {
-        intakeWheels.setMotorSpeeds(OperatorConstants.IntakeWheelSpeed);
+        intakeWheels.setMotorSpeeds(IntakeWheelConstants.IntakeWheelSpeed);
     }
 
     @Override
