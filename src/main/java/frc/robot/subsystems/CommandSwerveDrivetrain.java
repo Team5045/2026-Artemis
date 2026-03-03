@@ -26,6 +26,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
+import frc.robot.Vision;
+import frc.robot.Constants.VisionConstants;
+
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
  * Subsystem so it can easily be used in command-based projects.
@@ -111,6 +114,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+
+    // Vision class for pose estimation
+    private Vision m_Vision = new Vision();
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -222,6 +228,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     @Override
     public void periodic() {
+
+        // Estimate pose using vision
+        m_Vision.estimatePose(VisionConstants.front, this);
+        m_Vision.estimatePose(VisionConstants.side, this);
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
