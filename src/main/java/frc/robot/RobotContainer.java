@@ -83,7 +83,7 @@ public class RobotContainer {
         joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         // Intake shtuff
-        m_driverController.rightTrigger().whileTrue(new IntakeCommand(m_IntakeWheels, m_driverController));
+        m_driverController.x().onTrue(new IntakeCommand(m_IntakeWheels, m_driverController));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
