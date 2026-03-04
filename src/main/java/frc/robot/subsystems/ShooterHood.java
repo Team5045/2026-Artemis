@@ -5,6 +5,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import frc.robot.Constants.HoodConstants;
+import frc.robot.Constants.MotorIDs;
 
 public class ShooterHood extends SubsystemBase {
     TalonFX hood;
@@ -12,8 +13,8 @@ public class ShooterHood extends SubsystemBase {
     PIDController hoodPID;
     ArmFeedforward hoodFF;
 
-    public ShooterHood(int id) {
-        this.hood = new TalonFX(id);
+    public ShooterHood() {
+        this.hood = new TalonFX(MotorIDs.Hood);
         this.hoodPID = new PIDController(HoodConstants.kP, HoodConstants.kI, HoodConstants.kD);
         this.hoodFF = new ArmFeedforward(HoodConstants.kS, HoodConstants.kG, HoodConstants.kV);
     }
@@ -21,6 +22,6 @@ public class ShooterHood extends SubsystemBase {
     public void set(double setpoint){
         double position = this.hood.getPosition().getValueAsDouble();
         double velocity = this.hood.getVelocity().getValueAsDouble();
-        this.hood.set(this.hoodPID.calculate(position, setpoint) + this.hoodFF.calculate(position, velocity));
+        this.hood.setVoltage(this.hoodPID.calculate(position, setpoint) + this.hoodFF.calculate(position, velocity));
     }
 }

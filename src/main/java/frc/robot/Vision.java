@@ -18,13 +18,14 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class Vision {
 
     public static final AprilTagFieldLayout kTagLayout =
-                AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+                AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
     
     public static final Transform3d kRobotToCam =
                 new Transform3d(new Translation3d(VisionConstants.translationX, VisionConstants.translationY, VisionConstants.translationZ), new Rotation3d(0, VisionConstants.rotationPitch, 0));
     PhotonCamera front;
     PhotonCamera side;
     PhotonPoseEstimator photonEstimator;
+
 
     public Vision() {
         this.front = new PhotonCamera(VisionConstants.front);
