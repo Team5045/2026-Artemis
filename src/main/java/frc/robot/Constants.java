@@ -1,6 +1,9 @@
 package frc.robot;
 
 public class Constants {
+    public static class IntakeWheelConstants {
+        public static final double IntakeWheelSpeed = 0.4; // Subject to change
+    }
     public static class MotorIDs{
         public static int IntakeAngle = 9;
         public static int IntakeWheels = 10;

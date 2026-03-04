@@ -22,8 +22,17 @@ import frc.robot.subsystems.intakePID;
 import frc.robot.commands.IntakeDown;
 import frc.robot.commands.IntakeUp;
 import frc.robot.commands.IntakeJiggle;
+import frc.robot.subsystems.IntakeWheels;
+import frc.robot.commands.IntakeCommand;
 
 public class RobotContainer {
+    // idk
+    private final IntakeWheels m_IntakeWheels = new IntakeWheels(10);
+    private final CommandXboxController m_driverController =
+        new CommandXboxController(0);
+    private final IntakeCommand m_IntakeCommand = new IntakeCommand(m_IntakeWheels, m_driverController);
+    
+
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -86,6 +95,9 @@ public class RobotContainer {
         joystick2.y().onTrue(intakeUp);
         joystick2.b().onTrue(intakeJiggle);
 
+
+        // Intake shtuff
+        m_driverController.x().toggleOnTrue(m_IntakeCommand);
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
