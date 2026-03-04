@@ -18,6 +18,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.intakePID;
+import frc.robot.commands.IntakeDown;
+import frc.robot.commands.IntakeUp;
+import frc.robot.commands.IntakeJiggle;
 
 public class RobotContainer {
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -36,6 +40,10 @@ public class RobotContainer {
     private final CommandXboxController joystick2 = new CommandXboxController(1);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public final intakePID intakePID = new intakePID(9);
+    public final IntakeDown intakeDown = new IntakeDown(intakePID);
+    public final IntakeUp intakeUp = new IntakeUp(intakePID);
+    public final IntakeJiggle intakeJiggle = new IntakeJiggle(intakePID);
 
     public RobotContainer() {
         configureBindings();
@@ -74,6 +82,10 @@ public class RobotContainer {
 
         // Reset the field-centric heading on left bumper press.
         joystick1.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        joystick2.a().onTrue(intakeDown);
+        joystick2.y().onTrue(intakeUp);
+        joystick2.b().onTrue(intakeJiggle);
+
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

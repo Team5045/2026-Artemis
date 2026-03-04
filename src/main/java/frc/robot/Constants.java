@@ -33,5 +33,9 @@ public class Constants {
 
         public static double tpV = 0;
         public static double tpA = 0;
+
+        public static double upPosition = 0;
+        public static double slighltyUpPosition = 0;
+        public static double downPosition = 0;
     }
 }
