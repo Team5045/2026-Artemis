@@ -26,6 +26,8 @@ public class RobotContainer {
     private final IntakeWheels m_IntakeWheels = new IntakeWheels(10);
     private final CommandXboxController m_driverController =
         new CommandXboxController(0);
+    private final IntakeCommand m_IntakeCommand = new IntakeCommand(m_IntakeWheels, m_driverController);
+    
 
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -82,7 +84,7 @@ public class RobotContainer {
         joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         // Intake shtuff
-        m_driverController.x().toggleOnTrue(new IntakeCommand(m_IntakeWheels, m_driverController));
+        m_driverController.x().toggleOnTrue(m_IntakeCommand);
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
