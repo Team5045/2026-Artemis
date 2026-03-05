@@ -18,11 +18,24 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.intakePID;
+import frc.robot.commands.IntakeDown;
+import frc.robot.commands.IntakeUp;
+import frc.robot.commands.IntakeJiggle;
+import frc.robot.subsystems.IntakeWheels;
+import frc.robot.commands.IntakeCommand;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterHood;
 import frc.robot.commands.PrepareShooter;
 
 public class RobotContainer {
+    // idk
+    private final IntakeWheels m_IntakeWheels = new IntakeWheels(10);
+    private final CommandXboxController m_driverController =
+        new CommandXboxController(0);
+    private final IntakeCommand m_IntakeCommand = new IntakeCommand(m_IntakeWheels, m_driverController);
+    
+
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -39,6 +52,10 @@ public class RobotContainer {
     private final CommandXboxController joystick2 = new CommandXboxController(1);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public final intakePID intakePID = new intakePID(9);
+    public final IntakeDown intakeDown = new IntakeDown(intakePID);
+    public final IntakeUp intakeUp = new IntakeUp(intakePID);
+    public final IntakeJiggle intakeJiggle = new IntakeJiggle(intakePID);
     public final Shooter m_Shooter = new Shooter();
     public final ShooterHood m_ShooterHood = new ShooterHood();
     public final PrepareShooter m_PrepareShooter = new PrepareShooter(m_Shooter, m_ShooterHood, drivetrain, drive, brake);
@@ -80,6 +97,13 @@ public class RobotContainer {
 
         // Reset the field-centric heading on left bumper press.
         joystick1.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        joystick2.a().onTrue(intakeDown);
+        joystick2.y().onTrue(intakeUp);
+        joystick2.b().onTrue(intakeJiggle);
+
+
+        // Intake shtuff
+        m_driverController.x().toggleOnTrue(m_IntakeCommand);
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
