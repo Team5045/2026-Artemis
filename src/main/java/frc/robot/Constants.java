@@ -1,5 +1,8 @@
 package frc.robot;
 
+import java.lang.Math;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 public class Constants {
     public static class MotorIDs{
         public static int IntakeAngle = 9;
@@ -20,5 +23,36 @@ public class Constants {
         public static double kG = 0;
         public static double kV = 0;
 
+        public static double thirtyDegrees = 0.684;
+        public static double twentyfiveDegrees = 0.513;
+        public static double twentyDegrees = 0.342;
+    }
+
+    public static class VisionConstants {
+        public static String front = "front";
+        public static String side = "side";
+        
+        public static double rotationPitch = - Math.PI / 9; // 20 degrees up in radians
+        public static double translationX = 0.333; // 13.11 in forward in meters
+        public static double translationY = 0.006; // 0.25 in left in meters
+        public static double translationZ = 0.351; // 13.8 in up in meters
+
+        public static Pose2d blueHub = new Pose2d(4.587, 4.035, new Rotation2d(0));
+        public static Pose2d redHub = new Pose2d(16.54 - 4.587, 4.035, new Rotation2d(0));
+        
+        public static double rotationkP = 1;
+        public static double rotationkI = 0;
+        public static double rotationkD = 0;
+
+        public static double maxVelocity = 0.3;
+        public static double maxAcceleration = 0.3;
+
+        public static double rotationTolerance = Math.PI / 180;
+    }
+
+    public static class ShooterConstants{
+        public static double shooterTolerance = 0.5; // Tolerance for bang bang controller
+        public static double hubHeight = 1.8288; // 6 ft
+        public static double shooterHeight = 1.41;
     }
 }
