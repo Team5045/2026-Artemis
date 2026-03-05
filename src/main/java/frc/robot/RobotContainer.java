@@ -24,6 +24,9 @@ import frc.robot.commands.IntakeUp;
 import frc.robot.commands.IntakeJiggle;
 import frc.robot.subsystems.IntakeWheels;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ShooterHood;
+import frc.robot.commands.PrepareShooter;
 
 public class RobotContainer {
     // idk
@@ -53,6 +56,9 @@ public class RobotContainer {
     public final IntakeDown intakeDown = new IntakeDown(intakePID);
     public final IntakeUp intakeUp = new IntakeUp(intakePID);
     public final IntakeJiggle intakeJiggle = new IntakeJiggle(intakePID);
+    public final Shooter m_Shooter = new Shooter();
+    public final ShooterHood m_ShooterHood = new ShooterHood();
+    public final PrepareShooter m_PrepareShooter = new PrepareShooter(m_Shooter, m_ShooterHood, drivetrain, drive, brake);
 
     public RobotContainer() {
         configureBindings();
@@ -100,6 +106,10 @@ public class RobotContainer {
         m_driverController.x().toggleOnTrue(m_IntakeCommand);
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        joystick1.leftTrigger(0.1).onTrue(m_PrepareShooter);
+        
+        
     }
 
     public Command getAutonomousCommand() {
