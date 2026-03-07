@@ -105,16 +105,19 @@ public class RobotContainer {
 
         // Reset the field-centric heading on left bumper press.
         joystick1.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+
+        // Intake PID
         joystick2.a().onTrue(intakeDown);
         joystick2.y().onTrue(intakeUp);
         joystick2.b().onTrue(intakeJiggle);
 
 
-        // Intake shtuff
+        // Intake wheels
         m_driverController.x().toggleOnTrue(m_IntakeCommand);
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
+        // Shooter
         joystick1.leftTrigger(0.1).onTrue(m_PrepareShooter);
         joystick1.rightTrigger(0.1).onTrue(m_Shoot);
         

@@ -18,6 +18,8 @@ public class Constants {
         public static int Climber = 20;
     }
     public static class HoodConstants {
+
+        // TODO: Tune hood PID
         public static double kP = 0;
         public static double kI = 0;
         public static double kD = 0;
@@ -26,6 +28,7 @@ public class Constants {
         public static double kG = 0;
         public static double kV = 0;
 
+        // TODO: Tune hood setpoints
         public static double thirtyDegrees = 0.684;
         public static double twentyfiveDegrees = 0.513;
         public static double twentyDegrees = 0.342;
@@ -43,6 +46,7 @@ public class Constants {
         public static Pose2d blueHub = new Pose2d(4.587, 4.035, new Rotation2d(0));
         public static Pose2d redHub = new Pose2d(16.54 - 4.587, 4.035, new Rotation2d(0));
         
+        // TODO: Tune drivetrain rotation PID
         public static double rotationkP = 1;
         public static double rotationkI = 0;
         public static double rotationkD = 0;
@@ -59,6 +63,8 @@ public class Constants {
         public static double shooterHeight = 1.41;
     }
     public static class IntakeConstants {
+
+        // TODO: Tune Intake PID
         public static double kP = 0;
         public static double kI = 0;
         public static double kD = 0;
@@ -71,6 +77,7 @@ public class Constants {
         public static double tpV = 0;
         public static double tpA = 0;
 
+        // TODO: Tune Intake PID setpoints
         public static double upPosition = 0;
         public static double slighltyUpPosition = 0;
         public static double downPosition = 0;
