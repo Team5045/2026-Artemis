@@ -23,10 +23,14 @@ import frc.robot.commands.IntakeDown;
 import frc.robot.commands.IntakeUp;
 import frc.robot.commands.IntakeJiggle;
 import frc.robot.subsystems.IntakeWheels;
+import frc.robot.Constants.MotorIDs;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterHood;
+import frc.robot.subsystems.indexer;
+import frc.robot.subsystems.Passthrough;
 import frc.robot.commands.PrepareShooter;
+import frc.robot.commands.Shoot;
 
 public class RobotContainer {
     // idk
@@ -59,6 +63,10 @@ public class RobotContainer {
     public final Shooter m_Shooter = new Shooter();
     public final ShooterHood m_ShooterHood = new ShooterHood();
     public final PrepareShooter m_PrepareShooter = new PrepareShooter(m_Shooter, m_ShooterHood, drivetrain, drive, brake);
+
+    public final Passthrough m_Passthrough = new Passthrough();
+    public final indexer m_Indexer = new indexer(MotorIDs.Indexer);
+    public final Shoot m_Shoot = new Shoot(m_Indexer, m_Passthrough);
 
     public RobotContainer() {
         configureBindings();
@@ -108,7 +116,7 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
 
         joystick1.leftTrigger(0.1).onTrue(m_PrepareShooter);
-        
+        joystick1.rightTrigger(0.1).onTrue(m_Shoot);
         
     }
 
