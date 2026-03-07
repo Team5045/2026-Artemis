@@ -120,6 +120,19 @@ public class RobotContainer {
         // Shooter
         joystick1.leftTrigger(0.1).onTrue(m_PrepareShooter);
         joystick1.rightTrigger(0.1).onTrue(m_Shoot);
+
+        // Reset 0 position for intakePID
+        joystick2.rightBumper().onTrue(
+            Commands.runOnce(() -> {
+                intakePID.resetPosition();
+            })
+        );
+        // Reset 0 position for shooter hood
+        joystick2.rightBumper().onTrue(
+            Commands.runOnce(() -> {
+                m_ShooterHood.resetPosition();
+            })
+        );
         
     }
 

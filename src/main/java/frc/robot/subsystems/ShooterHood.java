@@ -24,4 +24,7 @@ public class ShooterHood extends SubsystemBase {
         double velocity = this.hood.getVelocity().getValueAsDouble();
         this.hood.setVoltage(this.hoodPID.calculate(position, setpoint) + this.hoodFF.calculate(position, velocity));
     }
+    public void resetPosition(){
+        this.hood.setPosition(0);
+    }
 }
