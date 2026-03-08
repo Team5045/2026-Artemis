@@ -9,6 +9,7 @@ Our code for our 2026 robot, Artemis! Built for the Rebuilt FRC challenge.
 ![Controller Diagram](images/360_controller.svg)
 
 This robot drives field-centric.
+
 Controller 1 (Driver Controller, Port 0):
 - Left Joystick: Strafe
 - Right Joystick: Turn
