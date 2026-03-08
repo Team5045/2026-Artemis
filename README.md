@@ -1,5 +1,4 @@
 ![5045 logo](images/5045-logo.png)
-![Rebuilt logo](images/rebuilt_logo_frc_fullcolor.png)
 
 # 2026 Artemis
 
