@@ -61,6 +61,8 @@ public class Constants {
         public static double shooterTolerance = 0.5; // Tolerance for bang bang controller
         public static double hubHeight = 1.8288; // 6 ft
         public static double shooterHeight = 1.41;
+        public static double gearRatio = 0.8333; // 15:18
+        public static double circumference = 2 * Math.PI * 0.1016; // 4 in (radius) * 2 * pi
     }
     public static class IntakeConstants {
 

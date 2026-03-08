@@ -38,6 +38,18 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 public class RobotContainer {
+    /*
+        TODO: Setup Elastic dashboard with following widgets:
+            - Field
+            - Graph for intake position
+            - Graph for shooter hood position
+            - Graph for shooter speed
+            - PID for intake
+            - PID for shooter hood
+            - Boolean for aligned
+            - Boolean for atSpeed
+            - Auto chooser
+    */
     // idk
     private final IntakeWheels m_IntakeWheels = new IntakeWheels(10);
     private final IntakeCommand m_IntakeCommand = new IntakeCommand(m_IntakeWheels);

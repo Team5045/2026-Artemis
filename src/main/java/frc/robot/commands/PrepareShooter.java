@@ -44,6 +44,7 @@ public class PrepareShooter extends Command {
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
     private final NetworkTable table = inst.getTable("RobotData");
     BooleanPublisher alignedPub;
+    BooleanPublisher speedPub;
 
     public PrepareShooter(Shooter m_Shooter, ShooterHood m_ShooterHood, CommandSwerveDrivetrain m_Drivetrain, SwerveRequest.FieldCentric drive, SwerveRequest.SwerveDriveBrake brake, CommandXboxController joystick){
         this.m_Shooter = m_Shooter;
@@ -58,6 +59,7 @@ public class PrepareShooter extends Command {
         this.velocity = 0;
 
         this.alignedPub = table.getBooleanTopic("aligned").publish();
+        this.speedPub = table.getBooleanTopic("atTargetSpeed").publish();
 
         this.joystick = joystick;
 
@@ -105,20 +107,23 @@ public class PrepareShooter extends Command {
             m_Drivetrain.setControl(drive.withVelocityX(0)
                 .withVelocityY(0)
                 .withRotationalRate(this.m_Controller.calculate(pose.getRotation().getRadians(), this.targetAngle)));
-            this.joystick.setRumble(RumbleType.kBothRumble, 0);           
+            this.joystick.setRumble(RumbleType.kLeftRumble, 0);           
         } else {
             m_Drivetrain.setControl(this.brake);
-            this.joystick.setRumble(RumbleType.kBothRumble, 1);
+            this.joystick.setRumble(RumbleType.kLeftRumble, 1);
         }
         
         // Publish aligned to networktables
         this.alignedPub.set(aligned);
+
+        // Publish atTargetSpeed to networktables
+        this.speedPub.set(this.m_Shooter.isAtSpeed());
 
         SmartDashboard.putData("driveRotPID", this.m_Controller);
     }
 
     @Override
     public void end(boolean isInterrupted){
-        m_Shooter.stop();
+        m_Shooter.shoot(0);
     }
 }
