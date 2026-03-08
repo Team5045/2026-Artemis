@@ -138,7 +138,7 @@ public class RobotContainer {
 
 
         // Intake wheels
-        joystick2.rightTrigger().toggleOnTrue(m_IntakeCommand);
+        joystick2.rightTrigger(0.1).toggleOnTrue(m_IntakeCommand);
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -153,7 +153,7 @@ public class RobotContainer {
             })
         );
         // Reset 0 position for shooter hood
-        joystick2.rightBumper().onTrue(
+        joystick2.leftBumper().onTrue(
             Commands.runOnce(() -> {
                 m_ShooterHood.resetPosition();
             })
