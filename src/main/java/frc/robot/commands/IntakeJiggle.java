@@ -19,7 +19,7 @@ public class IntakeJiggle extends Command{
 
     @Override
     public boolean isFinished(){
-        return intake.isAtGoal();
+        return true;
     }
 
 }

@@ -18,6 +18,14 @@ import frc.robot.Constants.ShooterConstants;
 
 import java.lang.Math;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTable;
+
+// For rumble feedback
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+
 public class PrepareShooter extends Command {
     Shooter m_Shooter;
     ShooterHood m_ShooterHood;
@@ -29,8 +37,13 @@ public class PrepareShooter extends Command {
     double hoodSetpoint;
     double hoodAngle;
     double velocity;
+    CommandXboxController joystick;
 
-    public PrepareShooter(Shooter m_Shooter, ShooterHood m_ShooterHood, CommandSwerveDrivetrain m_Drivetrain, SwerveRequest.FieldCentric drive, SwerveRequest.SwerveDriveBrake brake){
+    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    private final NetworkTable table = inst.getTable("RobotData");
+    BooleanPublisher alignedPub;
+
+    public PrepareShooter(Shooter m_Shooter, ShooterHood m_ShooterHood, CommandSwerveDrivetrain m_Drivetrain, SwerveRequest.FieldCentric drive, SwerveRequest.SwerveDriveBrake brake, CommandXboxController joystick){
         this.m_Shooter = m_Shooter;
         this.m_ShooterHood = m_ShooterHood;
         this.m_Drivetrain = m_Drivetrain;
@@ -41,6 +54,10 @@ public class PrepareShooter extends Command {
         this.targetAngle = 0;
         this.hoodSetpoint = 0;
         this.velocity = 0;
+
+        this.alignedPub = table.getBooleanTopic("aligned").publish();
+
+        this.joystick = joystick;
 
         addRequirements(m_Shooter);
         addRequirements(m_ShooterHood);
@@ -73,23 +90,27 @@ public class PrepareShooter extends Command {
             angle = Math.PI/2 - Math.PI/9;
         }
         this.velocity = Math.sqrt((-9.8*Math.pow(distance, 2))/(Math.cos(angle) * (ShooterConstants.hubHeight - ShooterConstants.shooterHeight - distance*Math.tan(angle))));
-        
+        m_ShooterHood.set(this.hoodSetpoint);
     }
 
     @Override
     public void execute() {
-        m_ShooterHood.set(this.hoodSetpoint);
         m_Shooter.shoot(this.velocity);
         Pose2d pose = m_Drivetrain.getState().Pose;
-        if(Math.abs(pose.getRotation().getRadians() - this.targetAngle) < VisionConstants.rotationTolerance){
+
+        boolean aligned = Math.abs(pose.getRotation().getRadians() - this.targetAngle) < VisionConstants.rotationTolerance;
+        if(!aligned){
             m_Drivetrain.setControl(drive.withVelocityX(0)
                 .withVelocityY(0)
-                .withRotationalRate(this.m_Controller.calculate(pose.getRotation().getRadians(), this.targetAngle)));           
+                .withRotationalRate(this.m_Controller.calculate(pose.getRotation().getRadians(), this.targetAngle)));
+            this.joystick.setRumble(RumbleType.kBothRumble, 0);           
         } else {
             m_Drivetrain.setControl(this.brake);
+            this.joystick.setRumble(RumbleType.kBothRumble, 1);
         }
         
-        
+        // Publish aligned to networktables
+        this.alignedPub.set(aligned);
     }
 
     @Override

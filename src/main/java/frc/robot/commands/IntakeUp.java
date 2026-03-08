@@ -19,6 +19,6 @@ public class IntakeUp extends Command{
 
     @Override
     public boolean isFinished(){
-        return intake.isAtGoal();
+        return true;
     }
 }
