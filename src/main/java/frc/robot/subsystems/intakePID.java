@@ -25,6 +25,10 @@ public class intakePID extends SubsystemBase{
         this.motor1.set(pid.calculate(position) + ff.calculate(position, velocity));
     }
 
+    public boolean isAtGoal(){
+        return this.pid.atGoal();
+    }
+
     public void resetPosition(){
         this.motor1.setPosition(0);
     }

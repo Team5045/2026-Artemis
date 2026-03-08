@@ -32,12 +32,12 @@ import frc.robot.subsystems.Passthrough;
 import frc.robot.commands.PrepareShooter;
 import frc.robot.commands.Shoot;
 
+import com.pathplanner.lib.auto.NamedCommands;
+
 public class RobotContainer {
     // idk
     private final IntakeWheels m_IntakeWheels = new IntakeWheels(10);
-    private final CommandXboxController m_driverController =
-        new CommandXboxController(0);
-    private final IntakeCommand m_IntakeCommand = new IntakeCommand(m_IntakeWheels, m_driverController);
+    private final IntakeCommand m_IntakeCommand = new IntakeCommand(m_IntakeWheels);
     
 
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -70,6 +70,10 @@ public class RobotContainer {
 
     public RobotContainer() {
         configureBindings();
+        NamedCommands.registerCommand("prepareShooter", m_PrepareShooter);
+        NamedCommands.registerCommand("shoot", m_Shoot);
+        NamedCommands.registerCommand("intake down", intakeDown);
+        NamedCommands.registerCommand("intake", m_IntakeCommand);
     }
 
     private void configureBindings() {
@@ -113,7 +117,7 @@ public class RobotContainer {
 
 
         // Intake wheels
-        m_driverController.x().toggleOnTrue(m_IntakeCommand);
+        joystick2.rightTrigger().toggleOnTrue(m_IntakeCommand);
 
         drivetrain.registerTelemetry(logger::telemeterize);
 

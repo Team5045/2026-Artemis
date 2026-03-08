@@ -22,8 +22,8 @@ public class Shooter extends SubsystemBase {
         this.controller = new BangBangController(ShooterConstants.shooterTolerance);
     }
 
+    // Important: run this continuously with 20ms delay
     public void shoot(double velocity){
-        // TODO: Bang Bang later with pose estimation
         this.shooter1.setVoltage(this.controller.calculate(this.getSpeed(), velocity));
         this.shooter2.setVoltage(this.controller.calculate(this.getSpeed(), velocity));
     }

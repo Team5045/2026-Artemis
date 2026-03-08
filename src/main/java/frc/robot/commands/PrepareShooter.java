@@ -26,6 +26,9 @@ public class PrepareShooter extends Command {
     SwerveRequest.FieldCentric drive;
     SwerveRequest.SwerveDriveBrake brake;
     double targetAngle;
+    double hoodSetpoint;
+    double hoodAngle;
+    double velocity;
 
     public PrepareShooter(Shooter m_Shooter, ShooterHood m_ShooterHood, CommandSwerveDrivetrain m_Drivetrain, SwerveRequest.FieldCentric drive, SwerveRequest.SwerveDriveBrake brake){
         this.m_Shooter = m_Shooter;
@@ -36,6 +39,8 @@ public class PrepareShooter extends Command {
         this.brake = brake;
         
         this.targetAngle = 0;
+        this.hoodSetpoint = 0;
+        this.velocity = 0;
 
         addRequirements(m_Shooter);
         addRequirements(m_ShooterHood);
@@ -56,25 +61,25 @@ public class PrepareShooter extends Command {
         double diffY = pose.getY() - hubPose.getY();
         double distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
         this.targetAngle = Math.atan(diffX/diffY);
-        double setpoint;
         double angle;
         if(distance > 3.6576) { // 12 ft
-            setpoint = HoodConstants.thirtyDegrees; 
+            this.hoodSetpoint = HoodConstants.thirtyDegrees; 
             angle = Math.PI/2 - Math.PI/6;
         } else if(distance < 3.6576 && distance > 2.4384){ // 8 ft < d < 12 ft
-            setpoint = HoodConstants.twentyfiveDegrees;
+            this.hoodSetpoint = HoodConstants.twentyfiveDegrees;
             angle = Math.PI/2 - (5*Math.PI)/36;
         } else {
-            setpoint = HoodConstants.twentyDegrees;
+            this.hoodSetpoint = HoodConstants.twentyDegrees;
             angle = Math.PI/2 - Math.PI/9;
         }
-        m_ShooterHood.set(setpoint);
-        double velocity = Math.sqrt((-9.8*Math.pow(distance, 2))/(Math.cos(angle) * (ShooterConstants.hubHeight - ShooterConstants.shooterHeight - distance*Math.tan(angle))));
-        m_Shooter.shoot(velocity);
+        this.velocity = Math.sqrt((-9.8*Math.pow(distance, 2))/(Math.cos(angle) * (ShooterConstants.hubHeight - ShooterConstants.shooterHeight - distance*Math.tan(angle))));
+        
     }
 
     @Override
     public void execute() {
+        m_ShooterHood.set(this.hoodSetpoint);
+        m_Shooter.shoot(this.velocity);
         Pose2d pose = m_Drivetrain.getState().Pose;
         if(Math.abs(pose.getRotation().getRadians() - this.targetAngle) < VisionConstants.rotationTolerance){
             m_Drivetrain.setControl(drive.withVelocityX(0)
