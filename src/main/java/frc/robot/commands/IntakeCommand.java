@@ -8,7 +8,7 @@ import frc.robot.subsystems.IntakeWheels;
 public class IntakeCommand extends Command{
     private final IntakeWheels intakeWheels;
 
-    public IntakeCommand(IntakeWheels intakeWheels, CommandXboxController controller)
+    public IntakeCommand(IntakeWheels intakeWheels)
     {
         this.intakeWheels = intakeWheels;
         addRequirements(intakeWheels);

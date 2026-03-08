@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -23,17 +25,34 @@ import frc.robot.commands.IntakeDown;
 import frc.robot.commands.IntakeUp;
 import frc.robot.commands.IntakeJiggle;
 import frc.robot.subsystems.IntakeWheels;
+import frc.robot.Constants.MotorIDs;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterHood;
+import frc.robot.subsystems.indexer;
+import frc.robot.subsystems.Passthrough;
 import frc.robot.commands.PrepareShooter;
+import frc.robot.commands.Shoot;
+
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 public class RobotContainer {
+    /*
+        TODO: Setup Elastic dashboard with following widgets:
+            - Field
+            - Graph for intake position
+            - Graph for shooter hood position
+            - Graph for shooter speed
+            - PID for intake
+            - PID for shooter hood
+            - Boolean for aligned
+            - Boolean for atSpeed
+            - Auto chooser
+    */
     // idk
     private final IntakeWheels m_IntakeWheels = new IntakeWheels(10);
-    private final CommandXboxController m_driverController =
-        new CommandXboxController(0);
-    private final IntakeCommand m_IntakeCommand = new IntakeCommand(m_IntakeWheels, m_driverController);
+    private final IntakeCommand m_IntakeCommand = new IntakeCommand(m_IntakeWheels);
     
 
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -58,10 +77,24 @@ public class RobotContainer {
     public final IntakeJiggle intakeJiggle = new IntakeJiggle(intakePID);
     public final Shooter m_Shooter = new Shooter();
     public final ShooterHood m_ShooterHood = new ShooterHood();
-    public final PrepareShooter m_PrepareShooter = new PrepareShooter(m_Shooter, m_ShooterHood, drivetrain, drive, brake);
+    public final PrepareShooter m_PrepareShooter = new PrepareShooter(m_Shooter, m_ShooterHood, drivetrain, drive, brake, joystick1);
+
+    public final Passthrough m_Passthrough = new Passthrough();
+    public final indexer m_Indexer = new indexer(MotorIDs.Indexer);
+    public final Shoot m_Shoot = new Shoot(m_Indexer, m_Passthrough);
+
+    public SendableChooser<String> autoChooser = new SendableChooser<>();
 
     public RobotContainer() {
         configureBindings();
+        NamedCommands.registerCommand("prepareShooter", m_PrepareShooter);
+        NamedCommands.registerCommand("shoot", m_Shoot);
+        NamedCommands.registerCommand("intake down", intakeDown);
+        NamedCommands.registerCommand("intake", m_IntakeCommand);
+
+        autoChooser.addOption("Collect and Shoot Left", "Collect and Shoot Left");
+        autoChooser.addOption("Collect and Shoot Right", "Collect and Shoot Right");
+        SmartDashboard.putData(autoChooser);
     }
 
     private void configureBindings() {
@@ -97,22 +130,43 @@ public class RobotContainer {
 
         // Reset the field-centric heading on left bumper press.
         joystick1.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+
+        // Intake PID
         joystick2.a().onTrue(intakeDown);
         joystick2.y().onTrue(intakeUp);
         joystick2.b().onTrue(intakeJiggle);
 
 
-        // Intake shtuff
-        m_driverController.x().toggleOnTrue(m_IntakeCommand);
+        // Intake wheels
+        joystick2.rightTrigger().toggleOnTrue(m_IntakeCommand);
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
+        // Shooter
         joystick1.leftTrigger(0.1).onTrue(m_PrepareShooter);
-        
+        joystick1.rightTrigger(0.1).onTrue(m_Shoot);
+
+        // Reset 0 position for intakePID
+        joystick2.rightBumper().onTrue(
+            Commands.runOnce(() -> {
+                intakePID.resetPosition();
+            })
+        );
+        // Reset 0 position for shooter hood
+        joystick2.rightBumper().onTrue(
+            Commands.runOnce(() -> {
+                m_ShooterHood.resetPosition();
+            })
+        );
         
     }
 
     public Command getAutonomousCommand() {
+        String autoName = autoChooser.getSelected();
+        PathPlannerAuto auto = new PathPlannerAuto(autoName);
+        return auto;
+
+        /*
         // Simple drive forward auton
         final var idle = new SwerveRequest.Idle();
         return Commands.sequence(
@@ -129,5 +183,6 @@ public class RobotContainer {
             // Finally idle for the rest of auton
             drivetrain.applyRequest(() -> idle)
         );
+        */
     }
 }

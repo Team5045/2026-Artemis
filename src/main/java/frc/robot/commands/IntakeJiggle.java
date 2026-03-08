@@ -16,4 +16,10 @@ public class IntakeJiggle extends Command{
     public void execute(){
         intake.set(IntakeConstants.slighltyUpPosition);
     }
+
+    @Override
+    public boolean isFinished(){
+        return true;
+    }
+
 }

@@ -1,37 +1,55 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.controller.BangBangController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import org.opencv.dnn.Net;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.MotorIDs;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.DoublePublisher;
 
 public class Shooter extends SubsystemBase {
     TalonFX shooter1;
     TalonFX shooter2;
     BangBangController controller;
+
+    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    private final NetworkTable table = inst.getTable("RobotData");
+    DoublePublisher shooterSpeedPub;
     
     public Shooter(){
         this.shooter1 = new TalonFX(MotorIDs.Shooter1);
         this.shooter2 = new TalonFX(MotorIDs.Shooter2);
+
+        // Important for BB Controller
         this.shooter1.setNeutralMode(NeutralModeValue.Coast);
         this.shooter2.setNeutralMode(NeutralModeValue.Coast);
 
         this.controller = new BangBangController(ShooterConstants.shooterTolerance);
+        shooterSpeedPub = table.getDoubleTopic("shooterSpeed").publish();
     }
 
-    public void shoot(double velocity){
-        // TODO: Bang Bang later with pose estimation
-        this.shooter1.setVoltage(this.controller.calculate(this.getSpeed(), velocity));
-        this.shooter2.setVoltage(this.controller.calculate(this.getSpeed(), velocity));
+    public void shoot(double velocity){ // Velocity should be output velocity in m/s
+        double realVelocity = (velocity * ShooterConstants.gearRatio) / ShooterConstants.circumference; // rotations per second
+        this.controller.setSetpoint(realVelocity);
     }
     private double getSpeed() {
         return this.shooter1.getVelocity().getValueAsDouble();
     }
-    public void stop(){
-        this.shooter1.set(0);
-        this.shooter2.set(0);
+
+    public boolean isAtSpeed(){
+        return this.controller.atSetpoint();
+    }
+
+    @Override
+    public void periodic(){
+        this.shooter1.setVoltage(this.controller.calculate(this.getSpeed()));
+        this.shooter2.setVoltage(this.controller.calculate(this.getSpeed()));
+        this.shooterSpeedPub.set(this.getSpeed());
     }
 }

@@ -14,6 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -29,6 +30,14 @@ import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.Vision;
 import frc.robot.Constants.VisionConstants;
 
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
  * Subsystem so it can easily be used in command-based projects.
@@ -37,6 +46,7 @@ import frc.robot.Constants.VisionConstants;
  * https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
  */
 public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
+    private RobotConfig config;
     private static final double kSimLoopPeriod = 0.004; // 4 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
@@ -52,6 +62,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+
+    private final SwerveRequest.ApplyRobotSpeeds drive = new SwerveRequest.ApplyRobotSpeeds();
+
+    private final Field2d elasitcField2d = new Field2d();
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -136,6 +150,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        try{
+            this.config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+        // Handle exception as needed
+            e.printStackTrace();
+        }
+        this.configAuto(config);
     }
 
     /**
@@ -160,6 +181,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        try{
+            this.config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+        // Handle exception as needed
+            e.printStackTrace();
+        }
+        this.configAuto(config);
     }
 
     /**
@@ -192,6 +220,53 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        
+        try{
+            this.config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+        // Handle exception as needed
+            e.printStackTrace();
+        }
+        this.configAuto(config);
+    }
+    
+    public void configAuto(RobotConfig config) {
+        // Load the RobotConfig from the GUI settings. You should probably
+        // store this in your Constants file
+
+        // Configure AutoBuilder last
+        AutoBuilder.configure(
+                this::getPose, // Robot pose supplier
+                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                ),
+                config, // The robot configuration
+                () -> {
+                // Boolean supplier that controls when the path will be mirrored for the red alliance
+                // This will flip the path being followed to the red side of the field.
+                // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                var alliance = DriverStation.getAlliance();
+                if (alliance.isPresent()) {
+                    return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
+    }
+    public Pose2d getPose(){
+        return this.getState().Pose;
+    }
+    public ChassisSpeeds getRobotRelativeSpeeds() {
+        return this.getKinematics().toChassisSpeeds(this.getState().ModuleStates);       
+    }
+    public void driveRobotRelative(ChassisSpeeds speeds) {
+        this.setControl(drive.withSpeeds(speeds));
     }
 
     /**
@@ -232,6 +307,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // Estimate pose using vision
         m_Vision.estimatePose(VisionConstants.front, this);
         m_Vision.estimatePose(VisionConstants.side, this);
+
+        // Set robot pose and send field to elastic dashboard
+        elasitcField2d.setRobotPose(this.getPose());
+        SmartDashboard.putData("field", elasitcField2d);
+
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.

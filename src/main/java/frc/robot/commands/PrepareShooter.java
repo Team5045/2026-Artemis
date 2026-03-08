@@ -18,6 +18,16 @@ import frc.robot.Constants.ShooterConstants;
 
 import java.lang.Math;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTable;
+
+// For rumble feedback
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class PrepareShooter extends Command {
     Shooter m_Shooter;
     ShooterHood m_ShooterHood;
@@ -26,8 +36,17 @@ public class PrepareShooter extends Command {
     SwerveRequest.FieldCentric drive;
     SwerveRequest.SwerveDriveBrake brake;
     double targetAngle;
+    double hoodSetpoint;
+    double hoodAngle;
+    double velocity;
+    CommandXboxController joystick;
 
-    public PrepareShooter(Shooter m_Shooter, ShooterHood m_ShooterHood, CommandSwerveDrivetrain m_Drivetrain, SwerveRequest.FieldCentric drive, SwerveRequest.SwerveDriveBrake brake){
+    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    private final NetworkTable table = inst.getTable("RobotData");
+    BooleanPublisher alignedPub;
+    BooleanPublisher speedPub;
+
+    public PrepareShooter(Shooter m_Shooter, ShooterHood m_ShooterHood, CommandSwerveDrivetrain m_Drivetrain, SwerveRequest.FieldCentric drive, SwerveRequest.SwerveDriveBrake brake, CommandXboxController joystick){
         this.m_Shooter = m_Shooter;
         this.m_ShooterHood = m_ShooterHood;
         this.m_Drivetrain = m_Drivetrain;
@@ -36,6 +55,13 @@ public class PrepareShooter extends Command {
         this.brake = brake;
         
         this.targetAngle = 0;
+        this.hoodSetpoint = 0;
+        this.velocity = 0;
+
+        this.alignedPub = table.getBooleanTopic("aligned").publish();
+        this.speedPub = table.getBooleanTopic("atTargetSpeed").publish();
+
+        this.joystick = joystick;
 
         addRequirements(m_Shooter);
         addRequirements(m_ShooterHood);
@@ -56,39 +82,48 @@ public class PrepareShooter extends Command {
         double diffY = pose.getY() - hubPose.getY();
         double distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
         this.targetAngle = Math.atan(diffX/diffY);
-        double setpoint;
         double angle;
         if(distance > 3.6576) { // 12 ft
-            setpoint = HoodConstants.thirtyDegrees; 
+            this.hoodSetpoint = HoodConstants.thirtyDegrees; 
             angle = Math.PI/2 - Math.PI/6;
         } else if(distance < 3.6576 && distance > 2.4384){ // 8 ft < d < 12 ft
-            setpoint = HoodConstants.twentyfiveDegrees;
+            this.hoodSetpoint = HoodConstants.twentyfiveDegrees;
             angle = Math.PI/2 - (5*Math.PI)/36;
         } else {
-            setpoint = HoodConstants.twentyDegrees;
+            this.hoodSetpoint = HoodConstants.twentyDegrees;
             angle = Math.PI/2 - Math.PI/9;
         }
-        m_ShooterHood.set(setpoint);
-        double velocity = Math.sqrt((-9.8*Math.pow(distance, 2))/(Math.cos(angle) * (ShooterConstants.hubHeight - ShooterConstants.shooterHeight - distance*Math.tan(angle))));
-        m_Shooter.shoot(velocity);
+        this.velocity = Math.sqrt((-9.8*Math.pow(distance, 2))/(Math.cos(angle) * (ShooterConstants.hubHeight - ShooterConstants.shooterHeight - distance*Math.tan(angle))));
+        m_ShooterHood.set(this.hoodSetpoint);
     }
 
     @Override
     public void execute() {
+        m_Shooter.shoot(this.velocity);
         Pose2d pose = m_Drivetrain.getState().Pose;
-        if(Math.abs(pose.getRotation().getRadians() - this.targetAngle) < VisionConstants.rotationTolerance){
+
+        boolean aligned = Math.abs(pose.getRotation().getRadians() - this.targetAngle) < VisionConstants.rotationTolerance;
+        if(!aligned){
             m_Drivetrain.setControl(drive.withVelocityX(0)
                 .withVelocityY(0)
-                .withRotationalRate(this.m_Controller.calculate(pose.getRotation().getRadians(), this.targetAngle)));           
+                .withRotationalRate(this.m_Controller.calculate(pose.getRotation().getRadians(), this.targetAngle)));
+            this.joystick.setRumble(RumbleType.kLeftRumble, 0);           
         } else {
             m_Drivetrain.setControl(this.brake);
+            this.joystick.setRumble(RumbleType.kLeftRumble, 1);
         }
         
-        
+        // Publish aligned to networktables
+        this.alignedPub.set(aligned);
+
+        // Publish atTargetSpeed to networktables
+        this.speedPub.set(this.m_Shooter.isAtSpeed());
+
+        SmartDashboard.putData("driveRotPID", this.m_Controller);
     }
 
     @Override
     public void end(boolean isInterrupted){
-        m_Shooter.stop();
+        m_Shooter.shoot(0);
     }
 }

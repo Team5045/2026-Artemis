@@ -16,4 +16,9 @@ public class IntakeDown extends Command{
     public void execute(){
         intake.set(IntakeConstants.downPosition);
     }
+
+    @Override
+    public boolean isFinished(){
+        return true;
+    }
 }
