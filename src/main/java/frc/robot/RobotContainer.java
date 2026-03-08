@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -33,6 +35,7 @@ import frc.robot.commands.PrepareShooter;
 import frc.robot.commands.Shoot;
 
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 public class RobotContainer {
     // idk
@@ -68,12 +71,18 @@ public class RobotContainer {
     public final indexer m_Indexer = new indexer(MotorIDs.Indexer);
     public final Shoot m_Shoot = new Shoot(m_Indexer, m_Passthrough);
 
+    public SendableChooser<String> autoChooser = new SendableChooser<>();
+
     public RobotContainer() {
         configureBindings();
         NamedCommands.registerCommand("prepareShooter", m_PrepareShooter);
         NamedCommands.registerCommand("shoot", m_Shoot);
         NamedCommands.registerCommand("intake down", intakeDown);
         NamedCommands.registerCommand("intake", m_IntakeCommand);
+
+        autoChooser.addOption("Collect and Shoot Left", "Collect and Shoot Left");
+        autoChooser.addOption("Collect and Shoot Right", "Collect and Shoot Right");
+        SmartDashboard.putData(autoChooser);
     }
 
     private void configureBindings() {
@@ -141,6 +150,11 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
+        String autoName = autoChooser.getSelected();
+        PathPlannerAuto auto = new PathPlannerAuto(autoName);
+        return auto;
+
+        /*
         // Simple drive forward auton
         final var idle = new SwerveRequest.Idle();
         return Commands.sequence(
@@ -157,5 +171,6 @@ public class RobotContainer {
             // Finally idle for the rest of auton
             drivetrain.applyRequest(() -> idle)
         );
+        */
     }
 }

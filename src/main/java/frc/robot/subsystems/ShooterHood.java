@@ -10,6 +10,8 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTable;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class ShooterHood extends SubsystemBase {
     TalonFX hood;
 
@@ -46,5 +48,6 @@ public class ShooterHood extends SubsystemBase {
     public void periodic(){
         this.hood.setVoltage(this.hoodPID.calculate(this.getPosition()) + this.hoodFF.calculate(this.getPosition(), this.getVelocity()));
         this.hoodPosPublisher.set(this.hood.getPosition().getValueAsDouble());
+        SmartDashboard.putData("hoodPID", this.hoodPID);
     }
 }

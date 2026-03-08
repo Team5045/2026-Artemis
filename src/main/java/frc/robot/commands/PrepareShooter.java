@@ -26,6 +26,8 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class PrepareShooter extends Command {
     Shooter m_Shooter;
     ShooterHood m_ShooterHood;
@@ -111,6 +113,8 @@ public class PrepareShooter extends Command {
         
         // Publish aligned to networktables
         this.alignedPub.set(aligned);
+
+        SmartDashboard.putData("driveRotPID", this.m_Controller);
     }
 
     @Override
