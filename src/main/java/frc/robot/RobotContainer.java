@@ -71,12 +71,12 @@ public class RobotContainer {
     private final CommandXboxController joystick2 = new CommandXboxController(1);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    public final intakePID intakePID = new intakePID(9);
+    public final intakePID intakePID = new intakePID(9, joystick2);
     public final IntakeDown intakeDown = new IntakeDown(intakePID);
     public final IntakeUp intakeUp = new IntakeUp(intakePID);
     public final IntakeJiggle intakeJiggle = new IntakeJiggle(intakePID);
     public final Shooter m_Shooter = new Shooter();
-    public final ShooterHood m_ShooterHood = new ShooterHood();
+    public final ShooterHood m_ShooterHood = new ShooterHood(joystick2);
     public final PrepareShooter m_PrepareShooter = new PrepareShooter(m_Shooter, m_ShooterHood, drivetrain, brake, joystick1);
 
     public final Passthrough m_Passthrough = new Passthrough();
@@ -159,6 +159,19 @@ public class RobotContainer {
             })
         );
         
+        // Manual Mode
+        joystick2.leftTrigger().onTrue(
+            Commands.runOnce(() -> {
+                m_ShooterHood.turnOnManual();
+                intakePID.turnOnManual();
+            })
+        );
+        joystick2.leftTrigger().onFalse(
+            Commands.runOnce(() -> {
+                m_ShooterHood.turnOffManual();
+                intakePID.turnOffManual();
+            })
+        );
     }
 
     public Command getAutonomousCommand() {
