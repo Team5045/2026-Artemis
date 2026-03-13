@@ -77,7 +77,7 @@ public class RobotContainer {
     public final IntakeJiggle intakeJiggle = new IntakeJiggle(intakePID);
     public final Shooter m_Shooter = new Shooter();
     public final ShooterHood m_ShooterHood = new ShooterHood();
-    public final PrepareShooter m_PrepareShooter = new PrepareShooter(m_Shooter, m_ShooterHood, drivetrain, drive, brake, joystick1);
+    public final PrepareShooter m_PrepareShooter = new PrepareShooter(m_Shooter, m_ShooterHood, drivetrain, brake, joystick1);
 
     public final Passthrough m_Passthrough = new Passthrough();
     public final indexer m_Indexer = new indexer(MotorIDs.Indexer);

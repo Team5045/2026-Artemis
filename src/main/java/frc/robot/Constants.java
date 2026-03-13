@@ -46,7 +46,7 @@ public class Constants {
         public static Pose2d blueHub = new Pose2d(4.587, 4.035, new Rotation2d(0));
         public static Pose2d redHub = new Pose2d(16.54 - 4.587, 4.035, new Rotation2d(0));
         
-        // TODO: Tune drivetrain rotation PID
+        // Rotation PID not needed
         public static double rotationkP = 1;
         public static double rotationkI = 0;
         public static double rotationkD = 0;
