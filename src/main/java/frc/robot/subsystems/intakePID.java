@@ -33,6 +33,7 @@ public class intakePID extends SubsystemBase{
         this.ff = new ArmFeedforward(IntakeConstants.kS, IntakeConstants.kG, IntakeConstants.kV, IntakeConstants.kA);
         this.intakePosPublisher = table.getDoubleTopic("intakePos").publish();
         this.joystick = joystick;
+        // this.motor1.setPosition(IntakeConstants.upPosition); // Reset the position to completely up. TODO: tune this
         manualMode = false;
     }
 

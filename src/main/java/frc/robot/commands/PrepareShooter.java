@@ -103,7 +103,7 @@ public class PrepareShooter extends Command {
             this.hoodSetpoint = HoodConstants.twentyDegrees;
             angle = Math.PI/2 - Math.PI/9;
         }
-        this.velocity = Math.sqrt((-9.8*Math.pow(distance, 2))/(Math.cos(angle) * (ShooterConstants.hubHeight - ShooterConstants.shooterHeight - distance*Math.tan(angle))));
+        this.velocity = Math.sqrt((-9.8*Math.pow(distance, 2))/(2 * Math.pow(Math.cos(angle), 2) * (ShooterConstants.hubHeight - ShooterConstants.shooterHeight - distance*Math.tan(angle))));
         m_ShooterHood.set(this.hoodSetpoint);
     }
 
