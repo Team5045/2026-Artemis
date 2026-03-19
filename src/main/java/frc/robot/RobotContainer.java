@@ -33,6 +33,7 @@ import frc.robot.subsystems.indexer;
 import frc.robot.subsystems.Passthrough;
 import frc.robot.commands.PrepareShooter;
 import frc.robot.commands.Shoot;
+import frc.robot.commands.EmergencyPrepareShooter;
 
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -78,6 +79,8 @@ public class RobotContainer {
     public final Shooter m_Shooter = new Shooter();
     public final ShooterHood m_ShooterHood = new ShooterHood(joystick2);
     public final PrepareShooter m_PrepareShooter = new PrepareShooter(m_Shooter, m_ShooterHood, drivetrain, brake, joystick1);
+    public final EmergencyPrepareShooter m_EmergencyPrepareShooter = new EmergencyPrepareShooter(m_Shooter, m_ShooterHood);
+
 
     public final Passthrough m_Passthrough = new Passthrough();
     public final indexer m_Indexer = new indexer(MotorIDs.Indexer);
@@ -103,8 +106,8 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-joystick1.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-joystick1.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                drive.withVelocityX(joystick1.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(joystick1.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-joystick1.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
@@ -130,6 +133,12 @@ public class RobotContainer {
 
         // Reset the field-centric heading on left bumper press.
         joystick1.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        
+        joystick1.x().whileTrue(Commands.runOnce(
+            () -> {
+                m_Passthrough.reverse();
+            }
+        ));
 
         // Intake PID
         joystick2.a().onTrue(intakeDown);
@@ -143,8 +152,9 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // Shooter
-        joystick1.leftTrigger(0.1).onTrue(m_PrepareShooter);
-        joystick1.rightTrigger(0.1).onTrue(m_Shoot);
+        joystick1.leftTrigger(0.1).whileTrue(m_EmergencyPrepareShooter);
+        joystick1.rightTrigger(0.1).whileTrue(m_Shoot);
+    
 
         // Reset 0 position for intakePID
         joystick2.rightBumper().onTrue(

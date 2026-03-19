@@ -38,6 +38,10 @@ public class Shooter extends SubsystemBase {
         double realVelocity = (velocity * ShooterConstants.gearRatio) / ShooterConstants.circumference; // rotations per second
         this.controller.setSetpoint(realVelocity);
     }
+    public void setPercent(double percent){
+        this.shooter1.set(percent);
+        this.shooter2.set(percent);
+    }
     private double getSpeed() {
         return this.shooter1.getVelocity().getValueAsDouble();
     }

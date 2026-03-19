@@ -14,7 +14,7 @@ public class indexer extends SubsystemBase {
 
     public void go(){
         //code that meowgicly works
-        index1.set(0.3);
+        index1.set(-0.3);
     }
     public void no(){
         index1.set(0);

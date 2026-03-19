@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 public class Constants {
     public static class IntakeWheelConstants {
-        public static final double IntakeWheelSpeed = 0.4; // Subject to change
+        public static final double IntakeWheelSpeed = -0.2; // Subject to change
     }
     public static class MotorIDs{
         public static int IntakeAngle = 9;
@@ -20,7 +20,7 @@ public class Constants {
     public static class HoodConstants {
 
         // TODO: Tune hood PID
-        public static double kP = 0;
+        public static double kP = 2;
         public static double kI = 0;
         public static double kD = 0;
 
@@ -29,9 +29,10 @@ public class Constants {
         public static double kV = 0;
 
         // TODO: Tune hood setpoints
-        public static double thirtyDegrees = 0.684;
-        public static double twentyfiveDegrees = 0.513;
-        public static double twentyDegrees = 0.342;
+        public static double thirtyDegrees = -0.684;
+        public static double twentyfiveDegrees = -0.513;
+        public static double twentyDegrees = -0.342;
+        public static double tenDegrees = 0;
     }
 
     public static class VisionConstants {
@@ -67,7 +68,7 @@ public class Constants {
     public static class IntakeConstants {
 
         // TODO: Tune Intake PID
-        public static double kP = 0;
+        public static double kP = 0.75;
         public static double kI = 0;
         public static double kD = 0;
 
@@ -80,8 +81,8 @@ public class Constants {
         public static double tpA = 0;
 
         // TODO: Tune Intake PID setpoints
-        public static double upPosition = 0;
-        public static double slighltyUpPosition = 0;
+        public static double upPosition = 3.37;
+        public static double slighltyUpPosition = 2.5;
         public static double downPosition = 0;
     }
 }
