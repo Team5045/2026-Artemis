@@ -12,7 +12,11 @@ public class Passthrough extends SubsystemBase {
     }
 
     public void run(){
-        passthrough.set(0.2);
+        passthrough.set(0.5);
+    }
+
+    public void reverse() {
+        passthrough.set(-0.3);
     }
 
     public void stop(){

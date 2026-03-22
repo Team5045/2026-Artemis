@@ -29,4 +29,6 @@ Controller 2 (Operator Controller, Port 1):
 - Right Trigger: Toggle intake
 - Left Bumper: Reset 0 position for shooter hood PID
 - Right Bumper: Reset 0 position for intake PID
-
+- Left Trigger: Turn on manual mode. Release to turn off manual mode.
+- Left joystick Y axis: When manual mode turned on, adjust shooter hood position.
+- Right joystick Y axis: When manual mode turned on, adjust intake position.

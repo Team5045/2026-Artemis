@@ -10,7 +10,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import com.ctre.phoenix6.hardware.TalonFX;
 import frc.robot.Constants.IntakeConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class intakePID extends SubsystemBase{
@@ -18,16 +18,23 @@ public class intakePID extends SubsystemBase{
     ProfiledPIDController pid;
     ArmFeedforward ff;
 
+    private boolean manualMode;
+
+    CommandXboxController joystick;
+
     // NetworkTables for elastic dashboard
     final NetworkTableInstance inst = NetworkTableInstance.getDefault();
     final NetworkTable table = inst.getTable("RobotData");
     final DoublePublisher intakePosPublisher;
 
-    public intakePID(int id){
+    public intakePID(int id, CommandXboxController joystick){
         this.motor1 = new TalonFX(id);
         this.pid = new ProfiledPIDController(IntakeConstants.kP, IntakeConstants.kI, IntakeConstants.kD, new TrapezoidProfile.Constraints(IntakeConstants.tpV, IntakeConstants.tpA));
         this.ff = new ArmFeedforward(IntakeConstants.kS, IntakeConstants.kG, IntakeConstants.kV, IntakeConstants.kA);
         this.intakePosPublisher = table.getDoubleTopic("intakePos").publish();
+        this.joystick = joystick;
+        this.motor1.setPosition(IntakeConstants.upPosition); // Reset the position to completely up. TODO: tune this
+        manualMode = false;
     }
 
     public void set(double goal){
@@ -49,9 +56,23 @@ public class intakePID extends SubsystemBase{
         return motor1.getVelocity().getValueAsDouble();
     }
 
+    public void turnOnManual(){
+        this.manualMode = true;
+    }
+    public void turnOffManual(){
+        this.manualMode = false;
+    }
+
     @Override
     public void periodic(){
-        this.motor1.set(pid.calculate(this.getPosition()) + ff.calculate(this.getPosition(), this.getVelocity()));
+        if(this.manualMode){
+            if(Math.abs(this.joystick.getRightY()) > 0.1){
+                this.motor1.set(this.joystick.getRightY() * 0.05);
+            }
+        } else {
+            this.motor1.setVoltage(pid.calculate(this.getPosition()) + ff.calculate(this.getPosition(), this.getVelocity()));
+        }
+        
         this.intakePosPublisher.set(this.motor1.getPosition().getValueAsDouble());
         SmartDashboard.putData("intake PID", pid);
     }
