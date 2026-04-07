@@ -15,6 +15,10 @@ import com.ctre.phoenix6.jni.UtilsJNI;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.geometry.Pose2d;
+
 public class Vision {
 
     public static final AprilTagFieldLayout kTagLayout =
@@ -23,24 +27,27 @@ public class Vision {
     public static final Transform3d kRobotToCam =
                 new Transform3d(new Translation3d(VisionConstants.translationX, VisionConstants.translationY, VisionConstants.translationZ), new Rotation3d(0, VisionConstants.rotationPitch, 0));
     PhotonCamera front;
-    PhotonCamera side;
+    //PhotonCamera side;
     PhotonPoseEstimator photonEstimator;
+    Field2d visionField = new Field2d();
 
 
     public Vision() {
         this.front = new PhotonCamera(VisionConstants.front);
-        this.side = new PhotonCamera(VisionConstants.side);
+        //this.side = new PhotonCamera(VisionConstants.side);
         this.photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
+        SmartDashboard.putData("visionField", visionField);
     }
 
     public void estimatePose(String cameraStr, CommandSwerveDrivetrain drivetrain){
-        PhotonCamera camera;
+        PhotonCamera camera = this.front;
+        /*
         if(cameraStr.equals(VisionConstants.side)){
             camera = this.side;
         } else {
             camera = this.front;
         }
-        
+        */
         Optional<EstimatedRobotPose> visionEst = Optional.empty();
         for(var result : camera.getAllUnreadResults()){
             visionEst = this.photonEstimator.estimateCoprocMultiTagPose(result);
@@ -49,11 +56,15 @@ public class Vision {
             }
             
             if(visionEst.isPresent()) {
+                Pose2d estimatedPose = visionEst.get().estimatedPose.toPose2d();
+                System.out.println(estimatedPose);
                 drivetrain.addVisionMeasurement(visionEst.get().estimatedPose.toPose2d(), UtilsJNI.getCurrentTimeSeconds());
+                visionField.setRobotPose(estimatedPose);
             }
             
             
         }
+        
         
     }
 

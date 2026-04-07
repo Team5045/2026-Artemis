@@ -91,7 +91,7 @@ public class PrepareShooter extends Command {
         double diffX = pose.getX() - hubPose.getX();
         double diffY = pose.getY() - hubPose.getY();
         double distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
-        this.targetAngle = Math.atan(diffX/diffY);
+        this.targetAngle = Math.atan(diffY/diffX);
         double angle;
         if(distance > 3.6576) { // 12 ft
             this.hoodSetpoint = HoodConstants.thirtyDegrees; 
@@ -128,7 +128,11 @@ public class PrepareShooter extends Command {
 
         // Publish atTargetSpeed to networktables
         this.speedPub.set(this.m_Shooter.isAtSpeed());
-
+        if(this.m_Shooter.isAtSpeed()){
+            this.joystick.setRumble(RumbleType.kRightRumble, 1);
+        } else {
+            this.joystick.setRumble(RumbleType.kRightRumble, 0);
+        }
         //SmartDashboard.putData("driveRotPID", this.m_Controller);
     }
 

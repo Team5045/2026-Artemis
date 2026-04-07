@@ -258,6 +258,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 },
                 this // Reference to this subsystem to set requirements
         );
+        SmartDashboard.putData("field", elasitcField2d);
     }
     public Pose2d getPose(){
         return this.getState().Pose;
@@ -306,11 +307,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         // Estimate pose using vision
         m_Vision.estimatePose(VisionConstants.front, this);
-        m_Vision.estimatePose(VisionConstants.side, this);
+        //m_Vision.estimatePose(VisionConstants.side, this);
 
         // Set robot pose and send field to elastic dashboard
         elasitcField2d.setRobotPose(this.getPose());
-        SmartDashboard.putData("field", elasitcField2d);
+        
 
         /*
          * Periodically try to apply the operator perspective.
