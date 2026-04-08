@@ -306,7 +306,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public void periodic() {
 
         // Estimate pose using vision
-        m_Vision.estimatePose(VisionConstants.front, this);
+        //m_Vision.estimatePose(VisionConstants.front, this);
         //m_Vision.estimatePose(VisionConstants.side, this);
 
         // Set robot pose and send field to elastic dashboard

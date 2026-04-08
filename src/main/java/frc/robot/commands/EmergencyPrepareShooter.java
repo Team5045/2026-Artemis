@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import org.opencv.ml.EM;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterHood;
@@ -20,7 +18,7 @@ public class EmergencyPrepareShooter extends Command{
 
     @Override
     public void execute(){
-        this.m_Shooter.setPercent(0.55);
+        this.m_Shooter.setPercent(0.65);
         this.m_ShooterHood.set(HoodConstants.twentyDegrees);
     }
 

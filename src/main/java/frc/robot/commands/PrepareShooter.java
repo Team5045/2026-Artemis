@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import frc.robot.Vision;
 import static edu.wpi.first.units.Units.*;
 
 public class PrepareShooter extends Command {
@@ -80,10 +80,11 @@ public class PrepareShooter extends Command {
 
     @Override
     public void initialize(){
-        Pose2d pose = m_Drivetrain.getState().Pose;
+        Vision v = new Vision();
+        Pose2d pose = v.estimatePose();
         var alliance = DriverStation.getAlliance();
         Pose2d hubPose;
-        if(alliance.isPresent() && alliance.get() == Alliance.Red && DriverStation.isAutonomous()){
+        if(alliance.isPresent() && alliance.get() == Alliance.Red /*&& DriverStation.isAutonomous()*/){
             hubPose = VisionConstants.redHub;
         } else {
             hubPose = VisionConstants.blueHub;
@@ -104,11 +105,14 @@ public class PrepareShooter extends Command {
             angle = Math.PI/2 - Math.PI/9;
         }
         this.velocity = Math.sqrt((-9.8*Math.pow(distance, 2))/(2 * Math.pow(Math.cos(angle), 2) * (ShooterConstants.hubHeight - ShooterConstants.shooterHeight - distance*Math.tan(angle))));
-        m_ShooterHood.set(this.hoodSetpoint);
+        System.out.println("distance: " + distance);
+        System.out.println("angle: " + this.targetAngle);
+        System.out.println("velocity: " + this.velocity);
     }
 
     @Override
     public void execute() {
+        m_ShooterHood.set(this.hoodSetpoint);
         m_Shooter.shoot(this.velocity);
         Pose2d pose = m_Drivetrain.getState().Pose;
 
@@ -134,10 +138,13 @@ public class PrepareShooter extends Command {
             this.joystick.setRumble(RumbleType.kRightRumble, 0);
         }
         //SmartDashboard.putData("driveRotPID", this.m_Controller);
-    }
+        
+        }
 
     @Override
     public void end(boolean isInterrupted){
         m_Shooter.shoot(0);
+        this.joystick.setRumble(RumbleType.kRightRumble, 0);
+        this.joystick.setRumble(RumbleType.kLeftRumble, 0);
     }
 }

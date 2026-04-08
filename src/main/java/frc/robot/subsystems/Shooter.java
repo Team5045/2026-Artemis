@@ -31,11 +31,13 @@ public class Shooter extends SubsystemBase {
         this.shooter2.setNeutralMode(NeutralModeValue.Coast);
 
         this.controller = new BangBangController(ShooterConstants.shooterTolerance);
+        controller.setTolerance(0.5);
         shooterSpeedPub = table.getDoubleTopic("shooterSpeed").publish();
     }
 
     public void shoot(double velocity){ // Velocity should be output velocity in m/s
         double realVelocity = (velocity * ShooterConstants.gearRatio) / ShooterConstants.circumference; // rotations per second
+        System.out.println("real velocity: " + realVelocity);
         this.controller.setSetpoint(realVelocity);
     }
     public void setPercent(double percent){
@@ -43,6 +45,7 @@ public class Shooter extends SubsystemBase {
         this.shooter2.set(percent);
     }
     private double getSpeed() {
+
         return this.shooter1.getVelocity().getValueAsDouble();
     }
 
@@ -52,8 +55,9 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic(){
-        this.shooter1.setVoltage(this.controller.calculate(this.getSpeed()));
-        this.shooter2.setVoltage(this.controller.calculate(this.getSpeed()));
+        double output = this.controller.calculate(this.getSpeed());
+        this.shooter1.set(output);
+        this.shooter2.set(output);
         this.shooterSpeedPub.set(this.getSpeed());
     }
 }

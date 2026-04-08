@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Pose2d;
 
+import com.ctre.phoenix6.Utils;
+
 public class Vision {
 
     public static final AprilTagFieldLayout kTagLayout =
@@ -39,7 +41,7 @@ public class Vision {
         SmartDashboard.putData("visionField", visionField);
     }
 
-    public void estimatePose(String cameraStr, CommandSwerveDrivetrain drivetrain){
+    public Pose2d estimatePose(/*CommandSwerveDrivetrain drivetrain*/){
         PhotonCamera camera = this.front;
         /*
         if(cameraStr.equals(VisionConstants.side)){
@@ -49,6 +51,7 @@ public class Vision {
         }
         */
         Optional<EstimatedRobotPose> visionEst = Optional.empty();
+        Pose2d estimatedPose = new Pose2d();
         for(var result : camera.getAllUnreadResults()){
             visionEst = this.photonEstimator.estimateCoprocMultiTagPose(result);
             if (visionEst.isEmpty()) {
@@ -56,17 +59,18 @@ public class Vision {
             }
             
             if(visionEst.isPresent()) {
-                Pose2d estimatedPose = visionEst.get().estimatedPose.toPose2d();
-                System.out.println(estimatedPose);
-                drivetrain.addVisionMeasurement(visionEst.get().estimatedPose.toPose2d(), UtilsJNI.getCurrentTimeSeconds());
+                estimatedPose = visionEst.get().estimatedPose.toPose2d();
+                //System.out.println(estimatedPose);
+                //drivetrain.addVisionMeasurement(visionEst.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(visionEst.get().timestampSeconds));
                 visionField.setRobotPose(estimatedPose);
             }
             
             
         }
-        
+        return estimatedPose;
         
     }
+    
 
 
 }
